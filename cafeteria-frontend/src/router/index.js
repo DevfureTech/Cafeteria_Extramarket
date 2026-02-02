@@ -7,7 +7,12 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    component: LoginView
+    component: LoginView,
+    meta: { guest: true }
+  },
+  {
+    path: '/',
+    redirect: '/dashboard'
   },
   {
     path: '/dashboard',
@@ -21,15 +26,23 @@ const router = createRouter({
   history: createWebHistory(),
   routes
 })
+
 router.beforeEach((to, from, next) => {
   const auth = useAuthStore()
 
-  if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    next('/login')
-  } else {
-    next()
+  const token = auth.token || localStorage.getItem('token')
+
+  if (to.meta.requiresAuth && !token) {
+    return next({ name: 'login' })
   }
+
+  if (to.meta.guest && token) {
+    return next({ name: 'dashboard' })
+  }
+
+  next()
 })
 
 export default router
+
 
