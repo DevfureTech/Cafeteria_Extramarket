@@ -8,11 +8,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Usuario extends AuthenticateTable
+class Usuario extends Authenticatable
 {
    use hasApiTokens, HasFactory, Notifiable; 
    protected $table = 'usuario'; 
-   protected $primaryKey = 'id'; 
+   protected $primaryKey = 'id_usuario'; 
    public $timestamp = true;
    
    protected $fillable = [
@@ -34,7 +34,7 @@ class Usuario extends AuthenticateTable
    ]; 
 
    public function rol(){
-    return $this->belongsTo(Rol::class); 
+    return $this->belongsTo(Rol::class, 'id_rol'); 
    }
 
    public function sesion(){
@@ -91,7 +91,7 @@ class Usuario extends AuthenticateTable
     }
     public function esAdmin()
     {
-        return $this->rol->nombre === 'Administrador';
+        return $this->rol && $this->rol->nombre === 'Administrador';
     }
 
     public function tienePermiso($modulo, $accion)

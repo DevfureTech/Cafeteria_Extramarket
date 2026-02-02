@@ -9,6 +9,8 @@ class Rol extends Model
 {
     use HasFactory;
     protected $table = 'rol';
+    protected $primaryKey = 'id_rol';
+    public $timestamps = false;
     
     protected $fillable = [
         'nombre',
@@ -21,9 +23,14 @@ class Rol extends Model
     }
 
     public function permisos()
-    {
-        return $this->hasMany(RolPermiso::class);
-    }
+{
+    return $this->belongsToMany(Permiso::class,
+        'rol_permiso',
+        'id_rol',
+        'id_permiso'
+    );
+}
+
 
 
     public function permisosAgrupados()

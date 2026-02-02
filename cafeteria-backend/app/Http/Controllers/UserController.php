@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Usuario;
+use App\Http\Requests\UserRequest;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -25,15 +26,11 @@ class UserController extends Controller
         //
     }
 
-    public function store(Request $request)
+    public function store(StoreUsuarioRequest $request)
     {
-         $validated = $request->validate([
-            'nombreUsuario' => 'required|unique:usuario',
-            'id_rol' => 'required|exists:rol,id',
-            'password' => 'required_if:rol_id,1|min:8',
-            'pin' => 'required_unless:rol_id,1|digits:4',
-        ]);
-
+         $validated = $request->validated();
+        
+        // Crear usuario
         $usuario = Usuario::create($validated);
         $usuario->load('rol');
         
@@ -65,13 +62,7 @@ class UserController extends Controller
     {
         $usuario = Usuario::findOrFail($id);
         
-        $validated = $request->validate([
-            'nombre_usuario' => 'sometimes|unique:usuario,username,' . $id,
-            'id_rol' => 'sometimes|exists:rol,id',
-            'password' => 'nullable|min:8',
-            'pin' => 'nullable|digits:4',
-            'activo' => 'boolean',
-        ]);
+        $validated = $request->validated();
         
         $usuario->update($validated);
         $usuario->load('rol');
