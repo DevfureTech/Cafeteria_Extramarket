@@ -26,7 +26,7 @@ class AuthController extends Controller
     if (!$usuario) {
         return response()->json([
             'success' => false,
-            'message' => 'Usuario no encontrado'
+            'message' => ''
         ], 401);
     }
 
