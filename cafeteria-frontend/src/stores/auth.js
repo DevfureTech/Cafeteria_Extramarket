@@ -30,7 +30,9 @@ export const useAuthStore = defineStore('auth', {
         return requiredRole.includes(this.user.rol)
       }
       return this.user.rol === requiredRole
-    }
+    }, 
+    setUser(user) {
+      this.currentUser = user
+    },
   }
 })
-
