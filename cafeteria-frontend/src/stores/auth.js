@@ -22,6 +22,14 @@ export const useAuthStore = defineStore('auth', {
       this.token = null
       this.isAuthenticated = false
       localStorage.removeItem('token')
+    },
+
+    hasPermission(requiredRole) {
+      if (!this.user || !this.user.rol) return false
+      if (Array.isArray(requiredRole)) {
+        return requiredRole.includes(this.user.rol)
+      }
+      return this.user.rol === requiredRole
     }
   }
 })
