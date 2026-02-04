@@ -17,8 +17,8 @@
 
           <div class="header__user">
             <p class="header__user-name">{{ currentUser?.nombre_usuario }}</p>
-            <p class="header__user-rol">{{ currentUser?.nombre_usuario }}</p>
-          </div>>
+            <p class="header__user-rol">{{ currentUser?.rol?.nombre }}</p>
+          </div>
           <button class="btn-logout" @click="handleLogout">
             <LogOut :size="17" color="#fff" />
             <span class="btn-logout__texto">Cerrar Sesión</span>
@@ -101,86 +101,55 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { storeToRefs } from 'pinia'
-import { useAuthStore } from '@/stores/auth'
-
+import { ref, computed }          from 'vue'
+import { useRouter, useRoute }    from 'vue-router'
+import { useAuthStore }           from '../stores/auth'  // ← Importar
 import {
-  Coffee,
-  Users,
-  Package,
-  ShoppingCart,
-  BarChart3,
-  LogOut,
-  Menu,
-  X,
-  Home
+  Coffee, Users, Package,
+  ShoppingCart, BarChart3,
+  LogOut, Menu, X, Home
 } from 'lucide-vue-next'
-
 import DashboardHome from './DashboardHome.vue'
 
-
+// ── router / route ──────────────────────────────────────────────
 const router = useRouter()
-const route = useRoute()
+const route  = useRoute()
 
+// ── auth store ──────────────────────────────────────────────────
+const authStore = useAuthStore()
+const currentUser = computed(() => authStore.currentUser)  // ← Usar computed del store
+
+// ── estado móvil ────────────────────────────────────────────────
 const mobileOpen = ref(false)
 
-// ── auth ─────────────────────────────────────────────
-const authStore = useAuthStore()
-const { user } = storeToRefs(authStore)
-
-// ── menú ─────────────────────────────────────────────
+// ── items de menú ───────────────────────────────────────────────
 const menuItems = [
-  { name: 'Inicio', path: '/dashboard', icon: Home },
-  {
-    name: 'Usuarios',
-    path: '/dashboard/users',
-    icon: Users,
-    requiredRole: ['Administrador']
-  },
-  {
-    name: 'Productos',
-    path: '/dashboard/products',
-    icon: Coffee,
-    requiredRole: ['Administrador', 'Supervisor']
-  },
-  { name: 'Inventario', path: '/dashboard/inventory', icon: Package },
-  { name: 'Punto de Venta', path: '/dashboard/pos', icon: ShoppingCart },
-  {
-    name: 'Reportes',
-    path: '/dashboard/reports',
-    icon: BarChart3,
-    requiredRole: ['Administrador', 'Supervisor']
-  }
+  { name: 'Inicio',          path: '/dashboard',            icon: Home },
+  { name: 'Usuarios',        path: '/dashboard/users',      icon: Users,        requiredPermission: 'usuarios,leer' },
+  { name: 'Productos',       path: '/dashboard/products',   icon: Coffee,       requiredPermission: 'productos,leer' },
+  { name: 'Inventario',      path: '/dashboard/inventory',  icon: Package },
+  { name: 'Punto de Venta',  path: '/dashboard/pos',        icon: ShoppingCart },
+  { name: 'Reportes',        path: '/dashboard/reports',    icon: BarChart3,    requiredPermission: 'reportes,leer' },
 ]
 
-// ── permisos ─────────────────────────────────────────
-function hasPermission(roles) {
-  if (!roles) return true
-  return roles.includes(user.value?.rol)
-}
-
+// ── computed: filtrar por permiso ───────────────────────────────
 const visibleMenuItems = computed(() =>
-  menuItems.filter(item => hasPermission(item.requiredRole))
+  menuItems.filter(item => authStore.hasPermission(item.requiredPermission))  // ← Usar método del store
 )
 
-// ── helpers ──────────────────────────────────────────
+// ── helpers ─────────────────────────────────────────────────────
 function isActive(path) {
   return route.path === path
 }
 
-function handleLogout() {
-  authStore.logout()
-  router.replace('/login')
+async function handleLogout() {
+  await authStore.logout()  // ← Esperar a que el logout termine
+  router.push('/login')  // ← Redirigir directamente al login
 }
 
 function navigateMobile(path) {
   router.push(path)
   mobileOpen.value = false
 }
-
-
 </script>
-
 

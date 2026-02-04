@@ -22,6 +22,8 @@ class StoreUsuarioRequest extends FormRequest
     public function rules(): array
     {
         return [
+        
+        'nombre_completo'=> 'required|string|max:150', 
         'nombre_usuario' => 'required|string|max:20',
         'id_rol' => 'required|exists:rol,id_rol',
         'contraseña_administrador' => 'nullable|min:6',

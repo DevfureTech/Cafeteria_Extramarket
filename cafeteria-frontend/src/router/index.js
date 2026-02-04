@@ -23,26 +23,26 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes,
 })
 
-router.beforeEach((to, from, next) => {
-  const auth = useAuthStore()
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore()
 
-  const token = auth.token || localStorage.getItem('token')
-
-  if (to.meta.requiresAuth && !token) {
-    return next({ name: 'login' })
+  // Ensure auth state is loaded from localStorage
+  if (!authStore.token) {
+    authStore.checkAuth()
   }
 
-  if (to.meta.guest && token) {
-    return next({ name: 'dashboard' })
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next('/login')  // Redirigir a login si no está autenticado
+  } else if (to.meta.guest && authStore.isAuthenticated) {
+    next('/dashboard')  // Redirigir a dashboard si está autenticado y trata de ir a login
+  } else {
+    next()
   }
-
-  next()
 })
-
 export default router
 
 

@@ -8,7 +8,7 @@
 
     <!-- Texto de bienvenida -->
     <h2 class="home__titulo fade-in-up" style="animation-delay:.12s">
-      ¡Bienvenido, {{ currentUser?.nombreCompleto }}!
+      ¡Bienvenido, {{ currentUser?.nombre_completo }}!
     </h2>
     <p class="home__subtitulo fade-in-up" style="animation-delay:.22s">
       Selecciona una opción del menú para comenzar
@@ -34,25 +34,21 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter }     from 'vue-router'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'  // ← Importar
 import {
-  Coffee,
-  Users,
-  Package,
-  ShoppingCart,
-  BarChart3
+  Coffee, Users, Package,
+  ShoppingCart, BarChart3
 } from 'lucide-vue-next'
 
 const router = useRouter()
 
-/* ── usuario (reemplaza con tu Pinia store) ─────────────── */
-const currentUser = ref({
-  nombreCompleto: 'Administrador',
-  rol: 'Administrador'
-})
+// ── auth store ──────────────────────────────────────────
+const authStore = useAuthStore()
+const currentUser = computed(() => authStore.currentUser)  // ← Del store
 
-/* ── cards (mismo filtrado que el sidebar) ──────────────── */
+// ── cards ───────────────────────────────────────────────
 const allCards = [
   { name: 'Usuarios',       path: '/dashboard/users',     icon: Users,        requiredRole: ['Administrador'] },
   { name: 'Productos',      path: '/dashboard/products',  icon: Coffee,       requiredRole: ['Administrador','Supervisor'] },
@@ -61,13 +57,8 @@ const allCards = [
   { name: 'Reportes',       path: '/dashboard/reports',   icon: BarChart3,    requiredRole: ['Administrador','Supervisor'] },
 ]
 
-function hasPermission(roles) {
-  if (!roles) return true
-  return roles.includes(currentUser.value?.rol)
-}
-
 const visibleCards = computed(() =>
-  allCards.filter(item => hasPermission(item.requiredRole))
+  allCards.filter(item => authStore.hasPermission(item.requiredRole))  // ← Del store
 )
 </script>
 

@@ -18,7 +18,7 @@ class AuthController extends Controller
         'pin' => 'nullable',
     ]);
 
-    $usuario = Usuario::with('rol')
+    $usuario = Usuario::with('rol.permisos')
         ->where('nombre_usuario', $request->nombre_usuario)
         ->where('activo', 1)
         ->first();
@@ -57,8 +57,9 @@ class AuthController extends Controller
     return response()->json([
         'success' => true,
         'token' => $plainToken,
-        'usuario' => $usuario
-    ]); 
+        'usuario' => $usuario,
+        'permisos' => $usuario->rol->permisosAgrupados()
+    ]);
 }
    public function logout(Request $request)
 {
@@ -74,7 +75,11 @@ class AuthController extends Controller
                 'fecha_fin' => now()
             ]);
     }
-    $request->user()->currentAccessToken()->delete();
+
+    // Only delete token if user is authenticated
+    if ($request->user()) {
+        $request->user()->currentAccessToken()->delete();
+    }
 
     return response()->json([
         'success' => true,

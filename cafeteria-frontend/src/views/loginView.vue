@@ -164,15 +164,16 @@ const router = useRouter()
 const handleLogin = async () => {
   loading.value = true
   errorMsg.value = ''
-  try {
-    await authStore.login({
-      nombre_usuario: username.value,
-      contraseña_administrador: password.value
-    })
+    try {
+    await authStore.login(username.value, password.value)  // ← Usar el store
     router.push('/dashboard')
-  } catch (err) {
-    console.error(err.response?.data)
-    errorMsg.value = err.response?.data?.message || ''
+
+  } catch (error) {
+    if (error.response?.status === 401) {
+      errorMsg.value = 'Credenciales incorrectas.'
+    } else {
+      errorMsg.value = 'Error al conectar con el servidor.'
+    }
   } finally {
     loading.value = false
   }

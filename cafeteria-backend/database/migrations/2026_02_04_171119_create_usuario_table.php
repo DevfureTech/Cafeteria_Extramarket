@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('usuario', function (Blueprint $table) {
             $table->integer('id_usuario', true);
             $table->integer('id_rol')->index('id_rol');
+            $table->string('nombre_completo', 150);
             $table->string('nombre_usuario', 20);
             $table->string('contraseña_administrador', 150)->unique('contraseña_administrador');
             $table->char('pin_usuario', 4);

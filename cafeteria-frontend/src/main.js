@@ -7,7 +7,13 @@ import './assets/style.css'
 
 const app = createApp(App)
 
-app.use(createPinia())
+const pinia = createPinia()
+app.use(pinia)
 app.use(router)
+
+// Initialize auth state from localStorage
+import { useAuthStore } from './stores/auth'
+const authStore = useAuthStore(pinia)
+authStore.checkAuth()
 
 app.mount('#app')
