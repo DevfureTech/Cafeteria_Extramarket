@@ -4,24 +4,37 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-
 
 class CheckRole
 {
-
-    public function handle(Request $request, Closure $next): Response
+    /**
+     * Handle an incoming request.
+     * 
+     * Uso en rutas: ->middleware('check.role:Administrador')
+     */
+    public function handle(Request $request, Closure $next, ...$roles)
     {
-         $usuario = auth()->user();
-
-        if (!$usuario) {
+        // Verificar si el usuario está autenticado
+        if (!$request->user()) {
             return response()->json([
-                'message' => 'Usuario no autenticado'
+                'success' => false,
+                'message' => 'Unauthenticated'
             ], 401);
         }
-        if (!$usuario->tienePermiso($modulo, $accion)) {
+
+        // Si no se especificaron roles, permitir
+        if (empty($roles)) {
+            return $next($request);
+        }
+
+        // Obtener el rol del usuario
+        $userRole = $request->user()->rol->nombre ?? null;
+
+        // Verificar si el rol del usuario está en la lista permitida
+        if (!in_array($userRole, $roles)) {
             return response()->json([
-                'message' => 'No tiene permisos para esta acción'
+                'success' => false,
+                'message' => 'Forbidden'
             ], 403);
         }
 

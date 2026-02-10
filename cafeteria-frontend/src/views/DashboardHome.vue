@@ -50,7 +50,7 @@ const currentUser = computed(() => authStore.currentUser)  // ← Del store
 
 // ── cards ───────────────────────────────────────────────
 const allCards = [
-  { name: 'Usuarios',       path: '/dashboard/users',     icon: Users,        requiredRole: ['Administrador'] },
+  { name: 'Usuarios',       path: '/dashboard/usuarios',     icon: Users,        requiredRole: ['Administrador'] },
   { name: 'Productos',      path: '/dashboard/products',  icon: Coffee,       requiredRole: ['Administrador','Supervisor'] },
   { name: 'Inventario',     path: '/dashboard/inventory', icon: Package },
   { name: 'Punto de Venta', path: '/dashboard/pos',       icon: ShoppingCart },

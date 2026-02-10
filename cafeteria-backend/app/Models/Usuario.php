@@ -13,7 +13,7 @@ class Usuario extends Authenticatable
    use hasApiTokens, HasFactory, Notifiable; 
    protected $table = 'usuario'; 
    protected $primaryKey = 'id_usuario'; 
-   public $timestamp = true;
+   public $timestamps = false;
    
    protected $fillable = [
     'id_rol', 

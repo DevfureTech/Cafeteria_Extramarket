@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/loginView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import { useAuthStore } from '@/stores/auth'
+import UsersView from '@/views/UsersView.vue'
 
 const routes = [
   {
@@ -18,8 +19,17 @@ const routes = [
     path: '/dashboard',
     name: 'dashboard',
     component: DashboardView,
-    meta: { requiresAuth: true }
-  }
+    meta: { requiresAuth: true }, 
+    children: [
+     
+      {
+        path: 'usuarios',          
+        name: 'usuarios',
+        component: UsersView
+      },
+     
+    ]
+  },
 ]
 
 const router = createRouter({
@@ -31,9 +41,7 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
   // Ensure auth state is loaded from localStorage
-  if (!authStore.token) {
-    authStore.checkAuth()
-  }
+  authStore.checkAuth()
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login')  // Redirigir a login si no está autenticado

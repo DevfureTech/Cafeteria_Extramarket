@@ -35,9 +35,11 @@ class AuthController extends Controller
             return response()->json(['message' => 'Contraseña incorrecta'], 401);
         }
     } else {
-        if ($request->pin !== $usuario->pin_usuario) {
-            return response()->json(['message' => 'PIN incorrecto'], 401);
-        }
+       if (!Hash::check($request->pin, $usuario->pin_usuario)) {
+    return response()->json(['message' => 'PIN incorrecto'], 401);
+}
+
+
     }
 
     $tokenResult = $usuario->createToken('api-token');
@@ -61,30 +63,38 @@ class AuthController extends Controller
         'permisos' => $usuario->rol->permisosAgrupados()
     ]);
 }
-   public function logout(Request $request)
+public function logout(Request $request)
 {
-    $token = $request->bearerToken();
+    try {
+        // Obtener token del header
+        $token = $request->bearerToken();
+        
+        if ($token) {
+            // Hashear el token para buscarlo en la BD
+            $hashedToken = hash('sha256', $token);
+            
+            // Buscar sesión activa y desactivarla
+            $sesion = Sesion::where('token', $hashedToken)
+                ->where('activo', true)
+                ->first();
+            
+            if ($sesion) {
+                $sesion->update(['activo' => false]);
+            }
+        }
 
-    if ($token) {
-        $hashedToken = hash('sha256', explode('|', $token)[1]);
-
-        // Auditoría
-        Sesion::where('token', $hashedToken)
-            ->update([
-                'activo' => 0,
-                'fecha_fin' => now()
-            ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Logout exitoso'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al cerrar sesión',
+            'error' => $e->getMessage()
+        ], 500);
     }
-
-    // Only delete token if user is authenticated
-    if ($request->user()) {
-        $request->user()->currentAccessToken()->delete();
-    }
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Sesión cerrada correctamente'
-    ]);
 }
 
 

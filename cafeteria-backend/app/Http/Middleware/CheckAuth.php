@@ -12,26 +12,34 @@ class CheckAuth
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request -> bearerToken(); 
-        if(!$token){
-            return response() -> json([
-                'success:' =>false, 
-                'message:' => "Token no proporcionado",
-            ], 401); 
+        $token = $request->bearerToken();
+        if (!$token) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token no proporcionado'
+            ], 401);
         }
 
-        $tokenHash = hash('sha296', $token); 
+        // Parse token to get the actual token part (after |)
+        $tokenParts = explode('|', $token);
+        if (count($tokenParts) !== 2) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token inválido'
+            ], 401);
+        }
+        $tokenHash = hash('sha256', $tokenParts[1]);
 
         $sesion = Sesion::with('usuario')
-            ->where('token', $token)
-            ->where('activo', true) 
-            ->first(); 
-          
-        if(!$sesion){
-            return response() -> json([
-                'success:' =>false, 
-                'message:' => "Sesion cerrada o invalida",
-            ], 401); 
+            ->where('token', $tokenHash)
+            ->where('activo', true)
+            ->first();
+
+        if (!$sesion) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sesión cerrada o inválida'
+            ], 401);
         }
 
         if ($sesion->fecha_expiracion < now()) {
@@ -41,29 +49,16 @@ class CheckAuth
                 'message' => 'Sesión expirada'
             ], 401);
         }
-        if (Carbon::now()->greaterThan($sesion->fecha_expiracion)) {
-            $sesion->update(['activo' => false]);
-
-            return response()->json([
-                'message' => 'Token expirado'
-            ], 401);
-        }
 
         $sesion->update([
             'fecha_expiracion' => now()->addMinutes(30)
         ]);
 
-        // Inyectar usuario autenticado
-        auth()->loginUsingId($sesion->id_usuario);
-
-        return $next($request);
-
-
-         $request->setUserResolver(function () use ($sesion) {
+        // Set user resolver for $request->user()
+        $request->setUserResolver(function () use ($sesion) {
             return $sesion->usuario;
         });
+
         return $next($request);
-
-
     }
 }

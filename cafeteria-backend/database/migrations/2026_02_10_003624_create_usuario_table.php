@@ -16,8 +16,8 @@ return new class extends Migration
             $table->integer('id_rol')->index('id_rol');
             $table->string('nombre_completo', 150);
             $table->string('nombre_usuario', 20);
-            $table->string('contraseña_administrador', 150)->unique('contraseña_administrador');
-            $table->char('pin_usuario', 4);
+            $table->string('contraseña_administrador', 150)->nullable()->unique('contraseña_administrador');
+            $table->string('pin_usuario', 150)->nullable();
             $table->boolean('activo')->default(false);
             $table->dateTime('fecha_creacion')->nullable()->useCurrent();
             $table->dateTime('fecha_actualizacion')->nullable()->useCurrent();

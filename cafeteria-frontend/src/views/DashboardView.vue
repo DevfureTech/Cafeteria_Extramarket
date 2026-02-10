@@ -125,7 +125,7 @@ const mobileOpen = ref(false)
 // ── items de menú ───────────────────────────────────────────────
 const menuItems = [
   { name: 'Inicio',          path: '/dashboard',            icon: Home },
-  { name: 'Usuarios',        path: '/dashboard/users',      icon: Users,        requiredPermission: 'usuarios,leer' },
+  { name: 'Usuarios',        path: '/dashboard/usuarios',      icon: Users,        requiredPermission: 'usuarios,leer' },
   { name: 'Productos',       path: '/dashboard/products',   icon: Coffee,       requiredPermission: 'productos,leer' },
   { name: 'Inventario',      path: '/dashboard/inventory',  icon: Package },
   { name: 'Punto de Venta',  path: '/dashboard/pos',        icon: ShoppingCart },

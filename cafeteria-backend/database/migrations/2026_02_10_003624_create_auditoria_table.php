@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('id_usuario')->index('id_usuario');
             $table->string('tabla', 50)->nullable();
             $table->string('operacion', 20)->nullable();
-            $table->string('usuario', 20)->nullable();
+            $table->string('usuario', 200)->nullable();
             $table->string('ip', 50)->nullable();
             $table->dateTime('fecha')->nullable()->useCurrent();
         });

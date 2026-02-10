@@ -11,20 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
+    ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-        'check.auth' => \App\Http\Middleware\CheckAuth::class,
-        'check.role' => \App\Http\Middleware\CheckRole::class,
-    ]);
+            'check.auth' => \App\Http\Middleware\CheckAuth::class,
+            'check.role' => \App\Http\Middleware\CheckRole::class,
+        ]);
     })
-    ->withExceptions(function ($exceptions) {
-    $exceptions->render(function (AuthenticationException $e, $request) {
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No autenticado'
-            ], 401);
-        }
-        });
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
     })
     ->create();
