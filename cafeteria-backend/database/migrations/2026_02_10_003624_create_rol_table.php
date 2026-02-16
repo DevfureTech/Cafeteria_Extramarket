@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('rol', function (Blueprint $table) {
             $table->integer('id_rol', true);
-            $table->string('nombre', 20)->unique('nombre');
+            $table->string('nombre');
+            $table->unique('nombre', 'rol_nombre_unique');
             $table->text('descripcion')->nullable();
             $table->dateTime('fecha_creacion')->nullable()->useCurrent();
         });

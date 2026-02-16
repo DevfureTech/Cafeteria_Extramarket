@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('sesion', function (Blueprint $table) {
             $table->integer('id_sesion', true);
-            $table->integer('id_usuario')->index('id_usuario');
+            $table->integer('id_usuario');
+            $table->index('id_usuario', 'sesion_id_usuario_index');
+
             $table->string('token', 150);
             $table->dateTime('fecha_inicio')->nullable()->useCurrent();
             $table->dateTime('fecha_fin')->nullable();
