@@ -16,7 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.auth' => \App\Http\Middleware\CheckAuth::class,
             'check.role' => \App\Http\Middleware\CheckRole::class,
         ]);
+<<<<<<< HEAD
         $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
+=======
+>>>>>>> respaldo-local
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

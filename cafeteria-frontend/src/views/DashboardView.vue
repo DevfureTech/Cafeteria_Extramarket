@@ -1,155 +1,323 @@
 <template>
-  <div class="dashboard-page">
-    <header class="header">
-      <div class="header__inner">
-
-        <div class="header__brand fade-in-left">
-          <div class="header__brand-icon">
-            <Coffee :size="28" color="#fff" />
-          </div>
-          <div>
-            <h1 class="header__title">Café Artesano</h1>
-            <p class="header__subtitle">Sistema de Gestión</p>
-          </div>
-        </div>
-
-        <div class="header__actions fade-in-right">
-
-          <div class="header__user">
-            <p class="header__user-name">{{ currentUser?.nombre_usuario }}</p>
-            <p class="header__user-rol">{{ currentUser?.rol?.nombre }}</p>
-          </div>
-          <button class="btn-logout" @click="handleLogout">
-            <LogOut :size="17" color="#fff" />
-            <span class="btn-logout__texto">Cerrar Sesión</span>
-          </button>
-
-          <button class="btn-hamburger" @click="mobileOpen = !mobileOpen">
-            <X      v-if="mobileOpen"  :size="24" color="var(--cafe-oscuro)" />
-            <Menu   v-else            :size="24" color="var(--cafe-oscuro)" />
-          </button>
-        </div>
+  <div class="dashboard-view">
+    
+    <!-- ════════════════════════════════════════════════════════
+         CONTENIDO DE BIENVENIDA (solo cuando estás en /dashboard)
+         ════════════════════════════════════════════════════════ -->
+    <div v-if="isExactDashboard" class="home-content">
+      
+      <!-- Icono central animado -->
+      <div class="home__icon-wrap pop-in">
+        <Coffee :size="44" color="#fff" />
       </div>
-    </header>
-    <div class="dashboard-body">
 
-   
-      <aside class="sidebar sidebar--desktop fade-in-up">
-        <nav class="sidebar__nav">
-          <button
-            v-for="(item, index) in visibleMenuItems"
-            :key="item.path"
-            class="sidebar__item"
-            :class="{ 'sidebar__item--active': isActive(item.path) }"
-            :style="{ animationDelay: index * 0.05 + 's' }"
-            @click="router.push(item.path)"
-          >
-            <component :is="item.icon" :size="20" />
-            <span>{{ item.name }}</span>
-          </button>
-        </nav>
-      </aside>
+      <!-- Texto de bienvenida -->
+      <h2 class="home__titulo fade-in-up" style="animation-delay:.12s">
+        ¡Bienvenido, {{ currentUser?.nombre_completo || currentUser?.nombre_usuario || 'Usuario' }}!
+      </h2>
+      <p class="home__subtitulo fade-in-up" style="animation-delay:.22s">
+        Selecciona una opción del menú para comenzar
+      </p>
 
-      <main class="main-content fade-in-up">
-        <DashboardHome v-if="route.path === '/dashboard'" />
-        <router-view   v-else />
-      </main>
-    </div>
-    <transition name="overlay">
-      <div
-        v-if="mobileOpen"
-        class="mobile-overlay"
-        @click="mobileOpen = false"
-      />
-    </transition>
-    <transition name="slide">
-      <aside
-        v-if="mobileOpen"
-        class="sidebar sidebar--mobile"
-        @click.stop
-      >
-        <!-- Header del panel móvil -->
-        <div class="sidebar__mobile-header">
-          <div class="sidebar__mobile-brand">
-            <div class="sidebar__mobile-icon">
-              <Coffee :size="22" color="#fff" />
-            </div>
-            <span class="sidebar__mobile-title">Menú</span>
+      <!-- Grid de tarjetas de acceso rápido -->
+      <div class="home__grid">
+        <button
+          v-for="(item, index) in visibleCards"
+          :key="item.path"
+          class="home__card fade-in-up"
+          :style="{ animationDelay: (0.28 + index * 0.08) + 's' }"
+          @click="router.push(item.path)"
+        >
+          <div class="home__card-icon">
+            <component :is="item.icon" :size="32" color="#fff" />
           </div>
-          <button class="sidebar__mobile-close" @click="mobileOpen = false">
-            <X :size="20" color="var(--cafe-oscuro)" />
-          </button>
-        </div>
+          <span class="home__card-label">{{ item.name }}</span>
+        </button>
+      </div>
 
-        <!-- Nav móvil -->
-        <nav class="sidebar__nav">
-          <button
-            v-for="item in visibleMenuItems"
-            :key="item.path"
-            class="sidebar__item"
-            :class="{ 'sidebar__item--active': isActive(item.path) }"
-            @click="navigateMobile(item.path)"
-          >
-            <component :is="item.icon" :size="20" />
-            <span>{{ item.name }}</span>
-          </button>
-        </nav>
-      </aside>
-    </transition>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         RUTAS HIJAS (productos, inventario, etc.)
+         ════════════════════════════════════════════════════════ -->
+    <router-view v-else />
 
   </div>
 </template>
 
 <script setup>
-import { ref, computed }          from 'vue'
-import { useRouter, useRoute }    from 'vue-router'
-import { useAuthStore }           from '../stores/auth'  // ← Importar
+import { computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import {
   Coffee, Users, Package,
-  ShoppingCart, BarChart3,
-  LogOut, Menu, X, Home
+  ShoppingCart, BarChart3
 } from 'lucide-vue-next'
-import DashboardHome from './DashboardHome.vue'
 
-// ── router / route ──────────────────────────────────────────────
 const router = useRouter()
-const route  = useRoute()
-
-// ── auth store ──────────────────────────────────────────────────
+const route = useRoute()
 const authStore = useAuthStore()
-const currentUser = computed(() => authStore.currentUser)  // ← Usar computed del store
 
-// ── estado móvil ────────────────────────────────────────────────
-const mobileOpen = ref(false)
+// ── Usuario actual ──────────────────────────────────────
+const currentUser = computed(() => authStore.currentUser)
 
-// ── items de menú ───────────────────────────────────────────────
-const menuItems = [
-  { name: 'Inicio',          path: '/dashboard',            icon: Home },
-  { name: 'Usuarios',        path: '/dashboard/usuarios',      icon: Users,        requiredPermission: 'usuarios,leer' },
-  { name: 'Productos',       path: '/dashboard/products',   icon: Coffee,       requiredPermission: 'productos,leer' },
-  { name: 'Inventario',      path: '/dashboard/inventory',  icon: Package },
-  { name: 'Punto de Venta',  path: '/dashboard/pos',        icon: ShoppingCart },
-  { name: 'Reportes',        path: '/dashboard/reports',    icon: BarChart3,    requiredPermission: 'reportes,leer' },
+// ── Detectar si estamos exactamente en /dashboard ──────
+const isExactDashboard = computed(() => {
+  return route.path === '/dashboard'
+})
+
+// ── Tarjetas de acceso rápido ───────────────────────────
+const allCards = [
+  { 
+    name: 'Usuarios',       
+    path: '/usuarios',     
+    icon: Users,        
+    requiredRole: ['Administrador'] 
+  },
+  { 
+    name: 'Productos',      
+    path: '/productos',  
+    icon: Coffee,       
+    requiredRole: ['Administrador', 'Supervisor'] 
+  },
+  { 
+    name: 'Inventario',     
+    path: '/inventario', 
+    icon: Package,
+    requiredRole: null  // Disponible para todos
+  },
+  { 
+    name: 'Punto de Venta', 
+    path: '/punto-venta',       
+    icon: ShoppingCart,
+    requiredRole: null
+  },
+  { 
+    name: 'Reportes',       
+    path: '/reportes',   
+    icon: BarChart3,    
+    requiredRole: ['Administrador', 'Supervisor'] 
+  },
 ]
 
-// ── computed: filtrar por permiso ───────────────────────────────
-const visibleMenuItems = computed(() =>
-  menuItems.filter(item => authStore.hasPermission(item.requiredPermission))  // ← Usar método del store
-)
+// Filtrar tarjetas según permisos
+const visibleCards = computed(() => {
+  return allCards.filter(item => {
+    if (!item.requiredRole) return true
+    
+    if (authStore.hasAnyRole && typeof authStore.hasAnyRole === 'function') {
+      return authStore.hasAnyRole(item.requiredRole)
+    }
+    
+    const userRole = authStore.userRole || authStore.currentUser?.rol?.nombre
+    return item.requiredRole.includes(userRole)
+  })
+})
 
-// ── helpers ─────────────────────────────────────────────────────
-function isActive(path) {
-  return route.path === path
-}
-
-async function handleLogout() {
-  await authStore.logout()  // ← Esperar a que el logout termine
-  router.push('/login')  // ← Redirigir directamente al login
-}
-
-function navigateMobile(path) {
-  router.push(path)
-  mobileOpen.value = false
-}
+// ── Verificar autenticación al montar ───────────────────
+onMounted(() => {
+  authStore.checkAuth()
+})
 </script>
 
+<style scoped>
+/* ══════════════════════════════════════════════════════════════
+   DASHBOARD VIEW - Contenedor principal
+   ══════════════════════════════════════════════════════════════ */
+
+.dashboard-view {
+  width: 100%;
+  min-height: 100%;
+  animation: fadeIn 0.3s ease both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   HOME CONTENT - Bienvenida y tarjetas
+   ══════════════════════════════════════════════════════════════ */
+
+.home-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ── Icono central ───────────────────────────────────────── */
+.home__icon-wrap {
+  width: 84px; 
+  height: 84px;
+  background: linear-gradient(135deg, var(--cafe-medio), var(--cafe-claro));
+  border-radius: 22px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  box-shadow: 0 8px 28px var(--cafe-sombra-md);
+  margin-bottom: 28px;
+}
+
+/* ── Textos ──────────────────────────────────────────────── */
+.home__titulo {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--cafe-oscuro);
+  letter-spacing: -0.3px;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.home__subtitulo {
+  font-size: 1rem;
+  color: var(--cafe-gris);
+  margin-bottom: 36px;
+}
+
+/* ── Grid de tarjetas ────────────────────────────────────── */
+.home__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+/* ── Tarjeta individual ──────────────────────────────────── */
+.home__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 24px 16px;
+  background: white;
+  border: 1.5px solid var(--cafe-gris-claro);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px var(--cafe-sombra);
+}
+
+.home__card:hover {
+  border-color: var(--cafe-medio);
+  box-shadow: 0 8px 24px var(--cafe-sombra-md);
+  transform: translateY(-4px) scale(1.02);
+}
+
+.home__card:active {
+  transform: translateY(-2px) scale(0.98);
+}
+
+/* ── Icono de la tarjeta ─────────────────────────────────── */
+.home__card-icon {
+  width: 62px; 
+  height: 62px;
+  background: linear-gradient(135deg, var(--cafe-medio), var(--cafe-claro));
+  border-radius: 16px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  box-shadow: 0 4px 14px var(--cafe-sombra-md);
+  transition: all 0.25s ease;
+}
+
+.home__card:hover .home__card-icon {
+  box-shadow: 0 6px 20px var(--cafe-sombra-md);
+  transform: scale(1.08);
+}
+
+/* ── Label de la tarjeta ─────────────────────────────────── */
+.home__card-label {
+  font-weight: 600;
+  color: var(--cafe-oscuro);
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ANIMACIONES
+   ══════════════════════════════════════════════════════════════ */
+
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0); }
+  60%  { transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.pop-in { 
+  animation: popIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; 
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in-up { 
+  animation: fadeSlideUp 0.4s ease both; 
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .home-content {
+    padding: 32px 20px;
+  }
+
+  .home__titulo {
+    font-size: 1.5rem;
+  }
+
+  .home__subtitulo {
+    font-size: 0.9rem;
+  }
+
+  .home__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .home__card {
+    padding: 20px 12px;
+  }
+
+  .home__card-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .home__icon-wrap {
+    width: 72px;
+    height: 72px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home__grid {
+    grid-template-columns: 1fr;
+    max-width: 280px;
+  }
+
+  .home__card {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .home__card-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .home__card-label {
+    text-align: left;
+  }
+}
+</style>

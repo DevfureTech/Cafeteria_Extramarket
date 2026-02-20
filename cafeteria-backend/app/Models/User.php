@@ -17,8 +17,13 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+<<<<<<< HEAD
 
 
+=======
+protected $primaryKey = 'id_user'; 
+    
+>>>>>>> respaldo-local
     protected $fillable = [
         'name',
         'email',

@@ -7,26 +7,35 @@ const api = axios.create({
     'Accept': 'application/json',
   },
   withCredentials: true,
-})
+});
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
+// Interceptor: adjuntar token JWT automáticamente
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+
   if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return config
-})
 
+  return config;
+});
+
+// Interceptor: manejar errores globales
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('usuario')
-      window.location.href = '/'
-    }
-    return Promise.reject(error)
-  }
-)
+  response => response,
+  error => {
+    if (error.response) {
+      if (error.response.status === 401) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
 
-export default api
+      if (error.response.status === 403) {
+        alert('No tienes permisos para esta acción');
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default api;

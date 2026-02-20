@@ -3,6 +3,14 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+<<<<<<< HEAD
+=======
+use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\ProveedorController;
+
+>>>>>>> respaldo-local
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -27,4 +35,31 @@ Route::middleware('check.auth')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/usuarios/{id}', [UserController::class, 'destroy']);
     });
+<<<<<<< HEAD
+=======
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Productos
+    Route::get('/categorias',        [CategoriaController::class, 'index']);
+    Route::get('/productos/alertas-stock',     [ProductoController::class, 'alertasStock']);
+    Route::get('/productos/alertas-vencimiento',[ProductoController::class,'alertasVencimiento']);
+    Route::apiResource('productos', ProductoController::class);
+
+    // Inventario
+    Route::post('/inventario/entradas',        [InventarioController::class, 'registrarEntrada']);
+    Route::post('/inventario/salidas',         [InventarioController::class, 'registrarSalida']);
+    Route::post('/inventario/ajustes',         [InventarioController::class, 'registrarAjuste']);
+    Route::get('/inventario/historial',        [InventarioController::class, 'historial']);
+    Route::get('/inventario/resumen',          [InventarioController::class, 'resumen']);
+    Route::get('/inventario/ultimos-movimientos',[InventarioController::class,'ultimosMovimientos']);
+});
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Proveedores
+Route::apiResource('proveedores', ProveedorController::class);
+Route::get('proveedores-activos', [ProveedorController::class, 'activos']);
+
+>>>>>>> respaldo-local
 });

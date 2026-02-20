@@ -16,7 +16,11 @@ return [
     |
     */
 
+<<<<<<< HEAD
     'default' => env('DB_CONNECTION', 'sqlite'),
+=======
+    'default' => env('DB_PG_CONNECTION', 'pgsql'),
+>>>>>>> respaldo-local
 
     /*
     |--------------------------------------------------------------------------
@@ -47,7 +51,11 @@ return [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
+<<<<<<< HEAD
             'port' => env('DB_PORT', '3306'),
+=======
+            'port' => env('DB_PORT', '3308'),
+>>>>>>> respaldo-local
             'database' => env('DB_DATABASE', 'laravel'),
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
@@ -86,6 +94,7 @@ return [
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
+<<<<<<< HEAD
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'laravel'),
@@ -96,11 +105,28 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+=======
+            'host' => env('DB_PG_HOST', '127.0.0.1'),
+            'port' => env('DB_PG_PORT', '5432'),
+            'database' => env('DB_PG_DATABASE', 'laravel'),
+            'username' => env('DB_PG_USERNAME', 'root'),
+            'password' => env('DB_PG_PASSWORD', ''),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'schema' => 'public',
+            'search_path' => 'public',
+            'sslmode' => env('DB_PG_SSLMODE', 'prefer'),
+>>>>>>> respaldo-local
              'options'  => extension_loaded('pdo_pgsql') ? array_filter([
              PDO::PGSQL_ATTR_DISABLE_PREPARES => env('DB_PGBOUNCER', false),
              ]) : [],
         ],
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> respaldo-local
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),
