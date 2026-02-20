@@ -3,14 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
-<<<<<<< HEAD
-=======
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\ProveedorController;
 
->>>>>>> respaldo-local
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -35,8 +32,6 @@ Route::middleware('check.auth')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/usuarios/{id}', [UserController::class, 'destroy']);
     });
-<<<<<<< HEAD
-=======
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -61,5 +56,4 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::apiResource('proveedores', ProveedorController::class);
 Route::get('proveedores-activos', [ProveedorController::class, 'activos']);
 
->>>>>>> respaldo-local
 });

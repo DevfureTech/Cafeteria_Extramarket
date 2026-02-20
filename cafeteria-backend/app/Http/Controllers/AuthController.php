@@ -18,11 +18,7 @@ class AuthController extends Controller
         'pin' => 'nullable',
     ]);
 
-<<<<<<< HEAD
-    $usuario = Usuario::with('rol.permisos')
-=======
     $usuario = Usuario::with('rol')
->>>>>>> respaldo-local
         ->where('nombre_usuario', $request->nombre_usuario)
         ->where('activo', 1)
         ->first();

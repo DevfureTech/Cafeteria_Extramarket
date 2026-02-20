@@ -24,12 +24,8 @@ class Rol extends Model
 
     public function permisos()
 {
-<<<<<<< HEAD
-    return $this->belongsToMany(Permiso::class,
-=======
     return $this->belongsToMany(
         Permiso::class,
->>>>>>> respaldo-local
         'rol_permiso',
         'id_rol',
         'id_permiso'

@@ -35,11 +35,7 @@ class Usuario extends Authenticatable
    ]; 
 
    public function rol(){
-<<<<<<< HEAD
-    return $this->belongsTo(Rol::class, 'id_rol'); 
-=======
     return $this->belongsTo(Rol::class, 'id_rol', 'id_rol'); 
->>>>>>> respaldo-local
    }
 
    public function sesion(){
