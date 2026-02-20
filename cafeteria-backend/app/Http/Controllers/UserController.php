@@ -80,7 +80,7 @@ class UserController extends Controller
                 'nombre_completo' => $validated['nombre_completo'],
                 'nombre_usuario' => $validated['nombre_usuario'],
                 'contraseña_administrador' => $admincontraseña_administrador,
-                'pin_usuario_usuario' => $pin_usuarioHash,
+                'pin_usuario' => $pin_usuarioHash,
                 'activo' => $validated['activo'] ?? true,
             ];
 
@@ -167,7 +167,7 @@ class UserController extends Controller
             ],
             'id_rol' => 'sometimes|exists:rol,id_rol',
             'contraseña_administrador' => 'nullable|string|min:8',
-                'pin_usuario_usuario' => 'nullable|digits:4',
+                'pin_usuario' => 'nullable|digits:4',
             'activo' => 'boolean',
         ]);
 
@@ -193,10 +193,10 @@ class UserController extends Controller
         }
 
         // ✅ pin_usuario: hashear antes de guardar
-        if (isset($validated['pin_usuario_usuario']) && !empty($validated['pin_usuario_usuario'])) {
-            $dataToUpdate['pin_usuario_usuario'] = Hash::make($validated['pin_usuario_usuario']);  // ← HASHEAR
-        }
-
+        if (isset($validated['pin_usuario']) && !empty($validated['pin_usuario'])) {
+                $dataToUpdate['pin_usuario'] = Hash::make($validated['pin_usuario']);  // ← HASHEAR
+            }
+    
         $usuario->update($dataToUpdate);
         $usuario->load('rol');
 

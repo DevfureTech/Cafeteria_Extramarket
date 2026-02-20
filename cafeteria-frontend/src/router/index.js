@@ -30,7 +30,7 @@ const routes = [
     path: '/dashboard',
     name: 'dashboard',
     component: DashboardView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: null }
   },
 
   // Usuarios (ruta independiente, no child de dashboard)
@@ -38,7 +38,7 @@ const routes = [
     path: '/usuarios',
     name: 'usuarios',
     component: UsersView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador'] }
   },
 
   // ============================================
@@ -48,21 +48,21 @@ const routes = [
     path: '/productos',
     name: 'productos',
     component: () => import('@/views/ProductosView.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor'] }
   },
   {
     path: '/productos/nuevo',
     name: 'nuevo-producto',
     component: () => import('@/components/Productos/ProductoForm.vue'),
     props: { modo: 'crear' },
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor'] }
   },
   {
     path: '/productos/editar/:id',
     name: 'editar-producto',
     component: () => import('@/views/ProductosView.vue'),
     props: (route) => ({ modo: 'editar', productoId: route.params.id }),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor'] }
   },
 
   // ============================================
@@ -72,21 +72,21 @@ const routes = [
     path: '/proveedores',
     name: 'proveedores',
     component: () => import('@/components/Proveedores/ProveedorForm.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor'] }
   },
   {
     path: '/proveedor/nuevo',
     name: 'nuevo-proveedor',
     component: () => import('@/components/Proveedores/ProveedorForm.vue'),
     props: { modo: 'crear' },
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor'] }
   },
   {
     path: '/proveedor/editar/:id',
     name: 'editar-proveedor',
     component: () => import('@/components/Proveedores/ProveedorForm.vue'),
     props: (route) => ({ modo: 'editar', proveedorId: route.params.id }),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor'] }
   },
 
   // ============================================
@@ -96,34 +96,34 @@ const routes = [
     path: '/inventario',
     name: 'inventario',
     component: () => import('@/views/InventarioView.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor', 'Empleado'] }
   },
   {
     path: '/inventario/historial',
     name: 'historial-inventario',
     component: () => import('@/views/HistorialMovimientos.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor', 'Empleado'] }
   },
   {
     path: '/inventario/entrada',
     name: 'entrada-inventario',
     component: () => import('@/views/InventarioView.vue'),
     props: { tabInicial: 'entrada' },
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor', 'Empleado'] }
   },
   {
     path: '/inventario/salida',
     name: 'salida-inventario',
     component: () => import('@/views/InventarioView.vue'),
     props: { tabInicial: 'salida' },
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor', 'Empleado'] }
   },
   {
     path: '/inventario/ajuste',
     name: 'ajuste-inventario',
     component: () => import('@/views/InventarioView.vue'),
     props: { tabInicial: 'ajuste' },
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor', 'Empleado'] }
   },
 
   // ============================================
@@ -133,27 +133,27 @@ const routes = [
     path: '/movimientos',
     name: 'movimientos',
     component: () => import('@/views/InventarioView.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor', 'Empleado'] }
   },
 
   // ============================================
-  // PUNTO DE VENTA (futura implementación)
+  // PUNTO DE VENTA (Cambiará a módulo de ventas en el futuro)
   // ============================================
   {
     path: '/punto-venta',
     name: 'punto-venta',
     component: () => import('@/views/InventarioView.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor', 'Empleado'] }
   },
 
   // ============================================
-  // REPORTES (futura implementación)
+  // REPORTES (Cambiará a módulo de reportes en el futuro)
   // ============================================
   {
     path: '/reportes',
     name: 'reportes',
     component: () => import('@/views/InventarioView.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor'] }
   },
 
   // ============================================
@@ -188,6 +188,38 @@ function isAuthenticated() {
 }
 
 /**
+ * Obtiene el rol del usuario desde localStorage
+ */
+function getUserRole() {
+  const usuario = localStorage.getItem('usuario')
+  if (!usuario) return null
+  
+  try {
+    const userData = JSON.parse(usuario)
+    return userData.rol?.nombre || null
+  } catch (e) {
+    return null
+  }
+}
+
+/**
+ * Verifica si el usuario tiene acceso a la ruta según su rol
+ */
+function hasRoleAccess(requiredRoles) {
+  // Si no requiere roles específicos, permitir
+  if (!requiredRoles || requiredRoles === null) return true
+  
+  const userRole = getUserRole()
+  
+  // Administrador tiene acceso a todo
+  if (userRole === 'Administrador') return true
+  
+  // Verificar si el rol del usuario está en los roles permitidos
+  const rolesArray = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles]
+  return rolesArray.includes(userRole)
+}
+
+/**
  * Guard principal - se ejecuta antes de cada navegación
  */
 router.beforeEach((to, from, next) => {
@@ -203,7 +235,15 @@ router.beforeEach((to, from, next) => {
         query: { redirect: to.fullPath } // Guardar la ruta destino para volver después del login
       })
     } else {
-      // Autenticado → permitir acceso
+      // Verificar roles de la ruta
+      const requiredRoles = to.meta.roles
+      if (!hasRoleAccess(requiredRoles)) {
+        console.log('🚫 Acceso denegado. No tienes permisos para esta sección.')
+        // Redirigir al dashboard
+        next('/dashboard')
+        return
+      }
+      // Autenticado y con roles correctos → permitir acceso
       next()
     }
     return

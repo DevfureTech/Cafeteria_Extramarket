@@ -66,7 +66,7 @@
 
 <script>
 export default {
-  name: 'Sidebar',
+  name: 'AppSidebar',
   props: {
     abierto: {
       type: Boolean,

@@ -14,6 +14,25 @@ export const useAuthStore = defineStore('auth', () => {
   
   const currentUser = computed(() => usuario.value)
 
+  // Obtener el nombre del rol del usuario
+  const userRole = computed(() => {
+    if (!usuario.value || !usuario.value.rol) return null
+    return usuario.value.rol.nombre
+  })
+
+  // Verificar si el usuario tiene alguno de los roles especificados
+  const hasAnyRole = (roles) => {
+    if (!usuario.value || !usuario.value.rol) return false
+    
+    const userRoleName = usuario.value.rol.nombre
+    
+    // Administrador tiene acceso a todo
+    if (userRoleName === 'Administrador') return true
+    
+    const rolesArray = Array.isArray(roles) ? roles : [roles]
+    return rolesArray.includes(userRoleName)
+  }
+
   // ── Acciones ────────────────────────────────────────────
 
   /**
@@ -109,10 +128,12 @@ function hasPermission(requiredPermission) {
     // Computed
     isAuthenticated,
     currentUser,
+    userRole,
     // Acciones
     login,
     logout,
     hasPermission,
+    hasAnyRole,
     checkAuth,
   }
 })

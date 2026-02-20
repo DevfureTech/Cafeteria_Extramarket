@@ -44,14 +44,26 @@ export default {
     const router = useRouter()
     const auth = useAuthStore()
     const sidebarAbierto = ref(false)
-    const menuItems = [
-  { nombre: 'Inicio', icono: 'bi-house', ruta: '/dashboard' },
-  { nombre: 'Usuarios', icono: 'bi-people', ruta: '/usuarios' },
-  { nombre: 'Productos', icono: 'bi-cup-hot', ruta: '/productos' },
-  { nombre: 'Inventario', icono: 'bi-box-seam', ruta: '/inventario' },
-  { nombre: 'Punto de Venta', icono: 'bi-cart3', ruta: '/punto-venta' },
-  { nombre: 'Reportes', icono: 'bi-bar-chart', ruta: '/reportes' },
-]
+    
+    // Menú completo disponible
+    const allMenuItems = [
+      { nombre: 'Inicio', icono: 'bi-house', ruta: '/dashboard', roles: null },
+      { nombre: 'Usuarios', icono: 'bi-people', ruta: '/usuarios', roles: ['Administrador'] },
+      { nombre: 'Productos', icono: 'bi-cup-hot', ruta: '/productos', roles: ['Administrador', 'Supervisor'] },
+      { nombre: 'Inventario', icono: 'bi-box-seam', ruta: '/inventario', roles: ['Administrador', 'Supervisor', 'Empleado'] },
+      { nombre: 'Punto de Venta', icono: 'bi-cart3', ruta: '/punto-venta', roles: ['Administrador', 'Supervisor', 'Empleado'] },
+      { nombre: 'Reportes', icono: 'bi-bar-chart', ruta: '/reportes', roles: ['Administrador', 'Supervisor'] },
+    ]
+
+    // Filtrar menú según el rol del usuario
+    const menuItems = computed(() => {
+      return allMenuItems.filter(item => {
+        // Si no requiere roles, permitir acceso
+        if (!item.roles) return true
+        // Verificar si el usuario tiene alguno de los roles permitidos
+        return auth.hasAnyRole(item.roles)
+      })
+    })
 
     // 🔥 CLAVE: usar el store, NO localStorage
     const isAuthenticated = computed(() => auth.isAuthenticated)
