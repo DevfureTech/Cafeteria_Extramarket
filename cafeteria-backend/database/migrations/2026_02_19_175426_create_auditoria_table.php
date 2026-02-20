@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('auditoria', function (Blueprint $table) {
             $table->integer('id_auditoria', true);
-            $table->integer('id_usuario')->index('id_usuario');
+            $table->integer('id_usuario');
+            $table->index('id_usuario');
             $table->string('tabla', 50)->nullable();
             $table->string('operacion', 20)->nullable();
             $table->string('usuario', 200)->nullable();
