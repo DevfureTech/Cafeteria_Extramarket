@@ -7,6 +7,8 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\VentaController;
 
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -48,6 +50,37 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/inventario/historial',        [InventarioController::class, 'historial']);
     Route::get('/inventario/resumen',          [InventarioController::class, 'resumen']);
     Route::get('/inventario/ultimos-movimientos',[InventarioController::class,'ultimosMovimientos']);
+
+    // Reportes
+    Route::prefix('reportes')->middleware('auth:sanctum')->group(function () {
+    
+    // Ventas
+    Route::get('/ventas', [ReporteController::class, 'ventasPorPeriodo']);
+    
+    // Productos
+    Route::get('/productos/ranking', [ReporteController::class, 'rankingProductos']);
+    Route::get('/productos/baja-rotacion', [ReporteController::class, 'productosBajaRotacion']);
+    
+    // Inventario
+    Route::get('/inventario', [ReporteController::class, 'reporteInventario']);
+    
+    // Exportación
+    Route::post('/exportar/pdf', [ReporteController::class, 'exportarPDF']);
+    Route::post('/exportar/excel', [ReporteController::class, 'exportarExcel']);
+    });
+
+    // Punto de Venta (POS)
+    Route::prefix('pos')->middleware('auth:sanctum')->group(function () {
+    
+    // Productos
+    Route::get('/productos', [VentaController::class, 'obtenerProductos']);
+    Route::get('/productos/buscar', [VentaController::class, 'buscarProductos']);
+    
+    // Ventas
+    Route::post('/ventas', [VentaController::class, 'procesarVenta']);
+    Route::get('/ventas/hoy', [VentaController::class, 'ventasHoy']);
+    Route::post('/ventas/{id}/cancelar', [VentaController::class, 'cancelarVenta']);
+});
 });
 
 
