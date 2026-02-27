@@ -137,22 +137,22 @@ const routes = [
   },
 
   // ============================================
-  // PUNTO DE VENTA (Cambiará a módulo de ventas en el futuro)
+  // PUNTO DE VENTA 
   // ============================================
   {
     path: '/punto-venta',
     name: 'punto-venta',
-    component: () => import('@/views/InventarioView.vue'),
+    component: () => import('@/views/POSView.vue'),
     meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor', 'Empleado'] }
   },
 
   // ============================================
-  // REPORTES (Cambiará a módulo de reportes en el futuro)
+  // REPORTES 
   // ============================================
   {
     path: '/reportes',
     name: 'reportes',
-    component: () => import('@/views/InventarioView.vue'),
+    component: () => import('@/views/ReportesView.vue'),
     meta: { requiresAuth: true, roles: ['Administrador', 'Supervisor'] }
   },
 
