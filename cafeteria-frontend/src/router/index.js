@@ -7,6 +7,14 @@ const routes = [
   // ============================================
   // RUTAS PÚBLICAS (sin autenticación)
   // ============================================
+  // Landing Page - DEBE SER LA PRIMERA
+  {
+    path: '/',
+    name: 'landing',
+    component: LandingView,
+    meta: { guest: true, public: true } // Agregamos flag public
+  },
+  
   {
     path: '/login',
     name: 'login',
@@ -18,13 +26,6 @@ const routes = [
   // RUTAS PROTEGIDAS (requieren autenticación)
   // ============================================
   
-  // Redirect raíz
-  {
-    path: '/',
-    redirect: '/dashboard',
-    component: DashboardView
-  },
-
   // Dashboard principal (con layout)
   {
     path: '/dashboard',
