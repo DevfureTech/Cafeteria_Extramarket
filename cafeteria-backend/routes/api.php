@@ -9,6 +9,7 @@ use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\VentaController;
+use App\Http\Controllers\LandingController;
 
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -35,6 +36,14 @@ Route::middleware('check.auth')->group(function () {
     Route::delete('/usuarios/{id}', [UserController::class, 'destroy']);
     });
 });
+
+// ══════════════════════════════════════════════════════════
+// RUTAS PÚBLICAS (sin autenticación) - Landing Page
+// ══════════════════════════════════════════════════════════
+Route::post('/landing', [LandingController::class, 'landing']);
+Route::get('/productos/publicos', [LandingController::class, 'getProductosPublicos']);
+Route::get('/estadisticas/publicas', [LandingController::class, 'getEstadisticasPublicas']);
+
 
 Route::middleware('auth:sanctum')->group(function () {
     // Productos
