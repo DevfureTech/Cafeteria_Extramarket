@@ -9,6 +9,18 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Crear instancia NUEVA sin interceptores
+const apiPublica = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  }
+})
+
+// Usar apiPublica en vez de api
+const response = await apiPublica.get('/productos/publicos')
+
 // Interceptor: adjuntar token JWT automáticamente
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
